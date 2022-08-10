@@ -4,10 +4,25 @@ import ptBr from 'date-fns/locale/pt-BR';
 import { Comment } from './Comment.jsx'
 import { Avatar } from "./Avatar"
 import styles from "./Post.module.css"
-import { useState } from 'react';
+import { useState, FormEvent, ChangeEvent, InvalidEvent } from 'react';
 
 
-export function Post({author, publishedAt, content}){
+interface Content {
+    type: 'paragraph' | 'link'
+    content:string
+}
+
+interface PostProps {
+    author: {
+        name: string
+        role: string
+        avatarUrl: string
+    },
+    publishedAt: Date,
+    content:Content[]
+}
+
+export function Post({author, publishedAt, content}:PostProps){
     const publisheadAtFormated = format(publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {locale:ptBr})
     
 
@@ -17,28 +32,28 @@ export function Post({author, publishedAt, content}){
        
     ])
 
-    function handleInvalidTextArea(){
+    function handleInvalidTextArea(event:InvalidEvent<HTMLTextAreaElement>){
         event.target.setCustomValidity('Esse campo é obrigatorio')
     }
 
-    function handleCreateNewComment (){
+    function handleCreateNewComment (event:FormEvent){
         event.preventDefault()
         
         setComments([...comments, newCommentText])
         setNewCommentText('')
     }
+    
+        function handleCommentChange(event:ChangeEvent<HTMLTextAreaElement>){
+            event.target.setCustomValidity('')
+            setNewCommentText(event.target.value);
+        }
 
-    function deleteComment(comment){
+    function deleteComment(comment:string){
         const commentWithOutDeleteOne = comments.filter(commentToDelete => {
             return comment !== commentToDelete
         })
        
         setComments(commentWithOutDeleteOne)
-    }
-
-    function handleCommentChange(){
-        setNewCommentText(event.target.value);
-        event.target.setCustomValidity('')
     }
     
 
